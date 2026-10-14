@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الفرق بين HTTP و HTTPS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1220;--card:#141d33;--line:#2a3658;--text:#f1f5ff;--muted:#a3b0cf;--red:#ff5468;--green:#2ee59d;--blue:#6b95ff;--c:var(--red);--nw:100px;--pw:176px;--pt:50px}
+body.http{--mv:.7s}
+body.https{--c:var(--green);--mv:.7s}
+@media(max-width:640px){:root{--nw:68px;--pw:140px;--pt:34px}}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Cairo',Tahoma,Arial,sans-serif;background:linear-gradient(160deg,#080d19,#12203d);color:var(--text);min-height:100vh;padding:24px 16px 40px}
+.wrap{max-width:980px;margin:0 auto}
+h1{text-align:center;font-size:clamp(1.5rem,4vw,2.3rem);font-weight:800;margin-bottom:6px}
+.lead{text-align:center;color:var(--muted);margin-bottom:18px;font-size:1.05rem}
+
+.author{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:-6px auto 18px}
+.author span{background:#6b95ff1a;border:1px solid #6b95ff66;color:#cfdcff;border-radius:99px;padding:6px 16px;font-weight:700;font-size:.95rem}
+.author .ph{direction:ltr;font-family:monospace;letter-spacing:.05em}
+.credit{text-align:center;margin-top:28px;padding:16px;border-top:1px solid var(--line);color:var(--muted);font-size:1rem}
+.credit b{color:var(--text);font-size:1.15rem}
+.credit .ph{direction:ltr;display:inline-block;font-family:monospace;color:var(--blue);font-weight:700}
+.wa{display:inline-flex;align-items:center;gap:10px;background:#25d366;color:#06240f;font-weight:800;font-size:1.02rem;text-decoration:none;
+  padding:11px 24px;border-radius:14px;box-shadow:0 6px 20px #25d36655;transition:.2s}
+.wa:hover{transform:translateY(-2px);box-shadow:0 10px 26px #25d36688}
+.wa svg{width:22px;height:22px;flex:none}
+.wa-row{text-align:center;margin:0 auto 18px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:18px}
+.legend div{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:.92rem}
+.legend svg{width:30px;height:30px;flex:none}
+
+.tabs{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+.tab{font:800 1.1rem 'Cairo',Tahoma;padding:11px 28px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;transition:.2s}
+.tab[data-m=http].on{border-color:var(--red);color:var(--red);background:#ff546814}
+.tab[data-m=https].on{border-color:var(--green);color:var(--green);background:#2ee59d14}
+
+.card{background:var(--card);border:2px solid var(--c);border-radius:22px;padding:20px;transition:border-color .3s}
+.stage{direction:ltr;position:relative;height:270px}
+.node{position:absolute;top:0;width:var(--nw);text-align:center;font-weight:700;font-size:.95rem}
+.node svg{width:var(--nw);height:var(--nw);display:block;margin-bottom:2px}
+.node.b{left:0}.node.s{right:0}
+.node.s.pulse svg{animation:pulse 1s ease-out}
+@keyframes pulse{0%{filter:none}40%{filter:drop-shadow(0 0 20px var(--green))}100%{filter:none}}
+.keytag{display:none;margin-top:2px;font-size:.8rem;color:#ffd666;font-weight:600}
+.keytag svg{width:16px;height:16px;display:inline-block;vertical-align:-3px}
+body.https .keytag{display:block}
+.path{position:absolute;top:var(--pt);left:var(--nw);right:var(--nw);height:3px;background:repeating-linear-gradient(90deg,#52618f 0 10px,transparent 10px 18px)}
+.tap{position:absolute;left:50%;top:var(--pt);height:100px;border-left:3px dashed #52618f}
+.hacker{position:absolute;left:50%;top:calc(var(--pt) + 100px);transform:translateX(-50%);width:150px;text-align:center;font-weight:700;font-size:.9rem}
+.hacker svg{width:70px;height:70px;display:block;margin:0 auto 2px;transition:filter .4s}
+.hacker.alert svg{filter:drop-shadow(0 0 16px var(--red))}
+.hacker.blind svg{filter:grayscale(1) opacity(.7)}
+
+.packet{position:absolute;top:calc(var(--pt) - 38px);width:var(--pw);padding:8px 12px;border-radius:12px;
+  left:calc(var(--nw) + 6px + (100% - 2*var(--nw) - 12px - var(--pw)) * var(--f,0));
+  transition:left var(--mv,.7s) ease-in-out,background .3s,color .3s,border-color .3s,box-shadow .3s;
+  background:#fff3d6;color:#2a2112;border:2px solid #e0bf72;font:600 13px/1.5 monospace;white-space:pre-line;box-shadow:0 8px 20px #0008}
+.packet small{display:block;font:800 11px 'Cairo',Tahoma;opacity:.75;margin-bottom:2px}
+.packet.exposed{border-color:var(--red);box-shadow:0 0 24px #ff546888}
+.packet.enc{background:#0b2d24;color:#b8f8dc;border-color:var(--green);box-shadow:0 0 24px #2ee59d66;text-align:center}
+.packet.dec{background:#e6fff5;color:#0b3b2a;border-color:var(--green)}
+.packet svg{width:22px;height:22px;display:block;margin:0 auto 2px}
+
+.panel{margin-top:6px;background:#060a14;border:1px solid var(--line);border-radius:14px;padding:12px 16px;text-align:center}
+.panel h4{font-size:.88rem;color:var(--muted);margin-bottom:4px;font-weight:600}
+.panel .v{font:700 1.15rem monospace;min-height:2.6em;white-space:pre-line;direction:ltr;color:var(--muted)}
+.panel .v.bad{color:var(--red)}.panel .v.safe{color:#9aa7c7}
+.panel .n{font-weight:800;margin-top:2px;min-height:1.5em}
+
+.cap{margin:16px 0 10px;background:#0c1426;border:1px solid var(--line);border-right:6px solid var(--c);border-radius:14px;padding:14px 18px;min-height:112px}
+.cap .t{color:var(--c);font-weight:800;font-size:1.05rem;margin-bottom:4px}
+.cap .x{font-size:1.28rem;line-height:1.75}
+
+.bar{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn{font:800 1rem 'Cairo',Tahoma;color:var(--text);background:#ffffff10;border:1px solid var(--line);border-radius:12px;padding:9px 18px;cursor:pointer}
+.btn:hover{background:#ffffff22}
+.dots{display:flex;gap:8px}
+.dot{width:34px;height:10px;border-radius:6px;background:#2c3960;cursor:pointer;transition:.3s}
+.dot.on{background:var(--c)}.dot.past{background:#5a6aa0}
+
+.ana{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:640px){.ana{grid-template-columns:1fr}}
+.ana div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;font-size:1.05rem;line-height:1.7}
+.ana b{display:block;font-size:1.15rem;margin-bottom:4px}
+.ana .r b{color:var(--red)}.ana .g b{color:var(--green)}
+
+table{width:100%;border-collapse:collapse;margin-top:22px;background:var(--card);border-radius:16px;overflow:hidden;font-size:1.02rem}
+th,td{padding:12px 14px;text-align:center;border-bottom:1px solid var(--line)}
+th{background:#0f1830}th.r{color:var(--red)}th.g{color:var(--green)}
+td:first-child{font-weight:800;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+</style>
+</head>
+<body class="http">
+<div class="wrap">
+  <h1>الفرق بين HTTP و HTTPS</h1>
+  <p class="lead">شوف رحلة بياناتك لما تسجل دخول على موقع، وإيه اللي ممكن يحصل في الطريق</p>
+
+  <div class="author"><span>إعداد: Sherif Nabil</span><span class="ph">01032901861</span></div>
+  <div class="wa-row"><a class="wa" href="https://whatsapp.com/channel/0029Vb9AlMtDuMRYPgA70z17" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a1 1 0 011 1v12a1 1 0 01-1 1H8.5L4 21.5V17H4a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg>اضغط هنا للانضمام لقناة الواتساب</a></div>
+
+  <div class="legend">
+    <div><svg><use href="#i-browser"/></svg>المتصفح = جهازك أنت</div>
+    <div><svg><use href="#i-server"/></svg>السيرفر = جهاز الموقع</div>
+    <div><svg><use href="#i-hacker"/></svg>المتجسس = شخص على نفس الشبكة (مثلاً واي فاي عام)</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-m="http">HTTP (بدون حماية)</button>
+    <button class="tab" data-m="https">HTTPS (مشفّر)</button>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <div class="node b"><svg><use href="#i-browser"/></svg>جهازك</div>
+      <div class="path"></div><div class="tap"></div>
+      <div class="packet" id="pk"></div>
+      <div class="hacker" id="hk"><svg><use href="#i-hacker"/></svg>المتجسس</div>
+      <div class="node s" id="sv"><svg><use href="#i-server"/></svg>السيرفر<div class="keytag"><svg><use href="#i-key"/></svg> معاه المفتاح</div></div>
+    </div>
+    <div class="panel"><h4>اللي المتجسس شايفه على الشبكة:</h4><div class="v" id="pv">—</div><div class="n" id="pn"></div></div>
+    <div class="cap"><div class="t" id="ct"></div><div class="x" id="cx"></div></div>
+    <div class="bar">
+      <button class="btn" id="prev">السابق</button>
+      <button class="btn" id="play">إيقاف مؤقت</button>
+      <button class="btn" id="next">التالي</button>
+      <button class="btn" id="snd">تشغيل الصوت</button>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+
+  <div class="ana">
+    <div class="r"><b>HTTP = كارت بريدي</b>أي حد بيمسكه في الطريق (ساعي البريد أو غيره) يقدر يقرأ اللي مكتوب عليه.</div>
+    <div class="g"><b>HTTPS = صندوق مقفول</b>الناس بتشوف الصندوق بس، والمفتاح مع السيرفر وحده.</div>
+  </div>
+
+  <table>
+    <tr><th></th><th class="r">HTTP</th><th class="g">HTTPS</th></tr>
+    <tr><td>التشفير</td><td>لا يوجد</td><td>يوجد (TLS)</td></tr>
+    <tr><td>البورت</td><td>80</td><td>443</td></tr>
+    <tr><td>هل المتجسس يقرأ البيانات؟</td><td>نعم</td><td>لا</td></tr>
+    <tr><td>العلامة في المتصفح</td><td>"غير آمن"</td><td>رمز القفل</td></tr>
+    <tr><td>مناسب لـ</td><td>صفحات عامة فقط</td><td>أي موقع فيه باسورد أو بيانات شخصية</td></tr>
+  </table>
+
+  <div class="credit">إعداد: <b>Sherif Nabil</b> &nbsp;|&nbsp; <span class="ph">01032901861</span></div>
+</div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-browser" viewBox="0 0 88 88"><rect x="6" y="14" width="76" height="60" rx="9" fill="#16213f" stroke="#6b95ff" stroke-width="2.5"/><path d="M6 28h76" stroke="#6b95ff" stroke-width="2.5"/><circle cx="16" cy="21" r="2.5" fill="#ff5f56"/><circle cx="24" cy="21" r="2.5" fill="#ffbd2e"/><circle cx="32" cy="21" r="2.5" fill="#27c93f"/><rect x="16" y="40" width="40" height="5" rx="2.5" fill="#6b95ff"/><rect x="16" y="50" width="56" height="5" rx="2.5" fill="#3a4a7a"/><rect x="16" y="60" width="30" height="5" rx="2.5" fill="#3a4a7a"/></symbol>
+  <symbol id="i-server" viewBox="0 0 88 88"><g stroke="#6b95ff" stroke-width="2.5" fill="#16213f"><rect x="14" y="10" width="60" height="21" rx="6"/><rect x="14" y="34" width="60" height="21" rx="6"/><rect x="14" y="58" width="60" height="21" rx="6"/></g><g fill="#2ee59d"><circle cx="26" cy="20.5" r="2.8"/><circle cx="26" cy="44.5" r="2.8"/><circle cx="26" cy="68.5" r="2.8"/></g><path d="M40 20.5h24M40 44.5h24M40 68.5h24" stroke="#3a4a7a" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-hacker" viewBox="0 0 64 64"><path d="M32 5C18 5 10 15 10 28v6c0 4 3 7 7 7h30c4 0 7-3 7-7v-6C54 15 46 5 32 5z" fill="#222a44" stroke="#a3b0cf" stroke-width="2"/><ellipse cx="32" cy="29" rx="15" ry="12" fill="#05070f"/><circle cx="26" cy="29" r="2.8" fill="#ff5468"/><circle cx="38" cy="29" r="2.8" fill="#ff5468"/><path d="M12 44h40l5 14H7z" fill="#1a2138" stroke="#a3b0cf" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="currentColor"/><path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="4.5" fill="none" stroke="#ffd666" stroke-width="2.4"/><path d="M12 12h10M18 12v4M21 12v3" stroke="#ffd666" stroke-width="2.4" fill="none" stroke-linecap="round"/></symbol>
+</defs></svg>
+
+<script>
+const D = {
+ http:[
+  {t:'الخطوة 1 من 5 — أنت بتكتب بياناتك',x:'بتكتب اسم المستخدم وكلمة المرور في موقع بيستخدم HTTP، وبتدوس "دخول".'},
+  {t:'الخطوة 2 من 5 — تجهيز الرسالة',x:'المتصفح بيحط بياناتك في رسالة، بس من غير أي حماية. الكلام مكتوب كنص عادي مفهوم لأي حد.'},
+  {t:'الخطوة 3 من 5 — الرسالة في الطريق',x:'الرسالة بتعدي على الشبكة (الواي فاي والراوتر) في طريقها للسيرفر، وفي نص الطريق في شخص متجسس.'},
+  {t:'الخطوة 4 من 5 — المتجسس بيقرأ الرسالة',x:'المتجسس شاف الرسالة وقرأها بسهولة: اسم المستخدم وكلمة المرور واضحين قدامه. بياناتك اتسرقت!'},
+  {t:'الخطوة 5 من 5 — السيرفر بيستلم',x:'الرسالة وصلت للسيرفر، والسيرفر مش عارف إن حد قراها قبله. المشكلة إن مفيش حماية خالص.'}],
+ https:[
+  {t:'الخطوة 1 من 5 — أنت بتكتب بياناتك',x:'بتكتب اسم المستخدم وكلمة المرور في موقع بيستخدم HTTPS، وبتدوس "دخول".'},
+  {t:'الخطوة 2 من 5 — التشفير',x:'قبل ما الرسالة تتبعت، المتصفح بيقفلها بالتشفير، زي ما تحط الورقة في صندوق مقفول.'},
+  {t:'الخطوة 3 من 5 — الصندوق المقفول في الطريق',x:'الصندوق بيعدي في نفس الطريق على الشبكة، والمتجسس موجود برضه في نص الطريق.'},
+  {t:'الخطوة 4 من 5 — المتجسس مش عارف يقرأ',x:'المتجسس شايف الصندوق بس. اللي بيلتقطه رموز عشوائية مالهاش معنى، ومعندوش المفتاح.'},
+  {t:'الخطوة 5 من 5 — السيرفر بيفك التشفير',x:'السيرفر معاه المفتاح السري، فتح الصندوق وقرأ بياناتك بأمان. وكده بياناتك وصلت من غير ما حد يقرأها.'}]
+};
+const F=[0,0,.5,.5,1];
+let m='http',s=0,auto=true,tm;
+const $=id=>document.getElementById(id);
+const LOCK='<svg><use href="#i-lock"/></svg>';
+const dots=$('dots');
+for(let i=0;i<5;i++){const d=document.createElement('div');d.className='dot';d.onclick=()=>{s=i;render();sched()};dots.appendChild(d)}
+
+function render(){
+  document.body.className=m;
+  const pk=$('pk'),hk=$('hk'),sv=$('sv'),pv=$('pv'),pn=$('pn');
+  pk.style.setProperty('--f',F[s]);
+  const sec=m==='https';
+  let cls='packet',html='';
+  if(!sec){
+    html='<small>رسالة عادية (نص واضح)</small>user: Sherif\npass: 1234';
+    if(s>=3&&s<4)cls+=' exposed';
+  }else if(s>=1&&s<4){
+    cls+=' enc';html=LOCK+'<small>رسالة مشفّرة</small>9fA#x2$Lq\n!7Zk@Pw%Rt';
+  }else if(s===4){
+    cls+=' dec';html='<small>تم فك التشفير بالمفتاح</small>user: Sherif\npass: 1234';
+  }else{
+    html='<small>بياناتك (قبل التشفير)</small>user: Sherif\npass: 1234';
+  }
+  pk.className=cls;pk.innerHTML=html;
+  hk.className='hacker'+(s===3?(sec?' blind':' alert'):'');
+  sv.classList.remove('pulse');if(s===4){void sv.offsetWidth;sv.classList.add('pulse')}
+  if(s>=2&&s<=3){
+    if(s===2){pv.className='v';pv.textContent='جاري التقاط الحزمة...';pn.textContent='';}
+    else if(sec){pv.className='v safe';pv.textContent='9fA#x2$Lq\n!7Zk@Pw%Rt';pn.style.color='var(--green)';pn.textContent='رموز مش مفهومة — البيانات محمية';}
+    else{pv.className='v bad';pv.textContent='user: Sherif\npass: 1234';pn.style.color='var(--red)';pn.textContent='نص واضح — البيانات مكشوفة!';}
+  }else if(s===4){ /* keep last view */ }
+  else{pv.className='v';pv.textContent='—';pn.textContent='';}
+  $('ct').textContent=D[m][s].t;$('cx').textContent=D[m][s].x;
+  [...dots.children].forEach((d,i)=>d.className='dot'+(i===s?' on':i<s?' past':''));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  $('play').textContent=auto?'إيقاف مؤقت':'تشغيل';
+  const key=m+s;if(key!==lastKey){lastKey=key;sfx()}
+}
+
+/* ===== الصوت (مولّد بالكود، مفيش ملفات) ===== */
+let ac=null,snd=false,lastKey='';
+function tone(f,d,type,v,t0,to){
+  const t=ac.currentTime+(t0||0),o=ac.createOscillator(),g=ac.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);
+  g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02);
+}
+function blips(ms){ // صوت بيانات بتتنقل: نبضات سريعة
+  for(let t=0;t<ms;t+=55)tone(900+Math.random()*1100,.04,'square',.04,t/1000);
+}
+function sfx(){
+  if(!snd||!ac)return;
+  const sec=m==='https';
+  if(s===1){
+    if(sec){tone(500,.12,'triangle',.12,0,900);tone(1300,.18,'sine',.12,.14)} // قفل
+    else tone(400,.1,'triangle',.08);
+  }
+  if(s===2){blips(700)}
+  if(s===3){
+    if(sec){tone(180,.3,'triangle',.14);tone(150,.4,'triangle',.14,.32)} // المتجسس مش فاهم
+    else{tone(800,.25,'sawtooth',.08,0,350);tone(800,.25,'sawtooth',.08,.3,350)} // إنذار
+  }
+  if(s===4){
+    blips(700);
+    if(sec){tone(700,.12,'triangle',.1,.75,1100);tone(1000,.3,'sine',.12,.85)} // فتح القفل
+    else tone(880,.3,'sine',.1,.8);
+  }
+}
+$('snd').onclick=()=>{
+  if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+  ac.resume();snd=!snd;
+  $('snd').textContent=snd?'كتم الصوت':'تشغيل الصوت';
+  if(snd){blips(300);lastKey=''}
+};
+function go(d){
+  if(d>0){if(s<4)s++;else{m=m==='http'?'https':'http';s=0}}
+  else{if(s>0)s--;else{m=m==='http'?'https':'http';s=4}}
+  render();sched();
+}
+function sched(){clearTimeout(tm);if(!auto)return;tm=setTimeout(()=>go(1),m==='http'?HTTP_MS[s]:(s===4?7000:6000))}
+const HTTP_MS=[2500,2500,2500,3500,3500]; // مدة كل خطوة في HTTP بالمللي ثانية
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{m=b.dataset.m;s=0;render();sched()});
+$('next').onclick=()=>go(1);
+$('prev').onclick=()=>go(-1);
+$('play').onclick=()=>{auto=!auto;render();sched()};
+render();sched();
+</script>
+</body>
+</html>
